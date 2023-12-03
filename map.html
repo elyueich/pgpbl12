@@ -13,6 +13,9 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css"
 		integrity="sha512-P9vJUXK+LyvAzj8otTOKzdfF1F3UYVl13+F8Fof8/2QNb8Twd6Vb+VD52I7+87tex9UXxnzPgWA3rH96RExA7A=="
 		crossorigin="anonymous" referrerpolicy="no-referrer" />
+	<!-- Plugin Geolocation -->
+	<link rel="stylesheet"
+		href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.76.0/dist/L.Control.Locate.min.css" />
 	<style>
 		html,
 		body,
@@ -32,6 +35,8 @@
 	<!-- Search JavaScript Library -->
 	<script src="https://calvinmetcalf.github.io/leaflet-ajax/dist/leaflet.ajax.js"></script>
 	<script src="https://calvinmetcalf.github.io/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
+	<!-- geolocation -->
+	<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.76.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
 	<script>
 		// yogyakarta
 		var map = L.map('map').setView([-7.797068, 110.370529], 13);
@@ -40,6 +45,9 @@
 		var basemap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			maxZoom: 18
 		}).addTo(map);
+
+		/*buat fitur geolocation dengan memanfaatkan plugin geolocation */
+		L.control.locate({ position: "topleft" }).addTo(map);
 
 		// Export Button
 		var showExport = '<button onclick="loadlayer()" title="Refresh map" class="">reload</button>';
