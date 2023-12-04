@@ -16,6 +16,8 @@
 	<!-- Plugin Geolocation -->
 	<link rel="stylesheet"
 		href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.76.0/dist/L.Control.Locate.min.css" />
+	<!-- Full Screen -->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet.fullscreen@latest/Control.FullScreen.css">
 	<style>
 		html,
 		body,
@@ -35,16 +37,66 @@
 	<!-- Search JavaScript Library -->
 	<script src="https://calvinmetcalf.github.io/leaflet-ajax/dist/leaflet.ajax.js"></script>
 	<script src="https://calvinmetcalf.github.io/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
+
 	<!-- geolocation -->
-	<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.76.0/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+	<script src="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@v0.76.0/dist/L.Control.Locate.min.js"
+		charset="utf-8"></script>
+
+	<!-- Full Screen -->
+	<script src="https://unpkg.com/leaflet.fullscreen@latest/Control.FullScreen.js"></script>
+
 	<script>
 		// yogyakarta
 		var map = L.map('map').setView([-7.797068, 110.370529], 13);
 
 		// basemap
-		var basemap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			maxZoom: 18
-		}).addTo(map);
+		// var basemap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		// 	maxZoom: 18
+		// }).addTo(map);
+
+		/* Tile Basemap  */
+		var oms = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			attribution: '<a href="https://www.openstreetmap.org">OpenStreetMap</a> | <a href="DIVSIGUGM" target="_blank">DIVSIG UGM</a>' //menambahkan nama//
+		});
+
+		var OpenTopoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+			attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+		});
+
+		var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+			attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+		});
+
+		var stadiaalidade = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
+			attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+		});
+		stadiaalidade.addTo(map);
+
+		/* Control Layer PILIHAN BASEMAP DAN SEKOLAH */
+		var baseMaps = {
+			"OpenStreetMap": oms,
+			"Topografi Maps": OpenTopoMap,
+			"Esri World Imagery": Esri_WorldImagery,
+			"Stadia Dark Mode": stadiaalidade
+		};
+		var Sekolah = {
+
+		};
+
+		L.control.layers(baseMaps, Sekolah, { collapsed: true }).addTo(map);
+
+		// create fullscreen control
+		var fsControl = L.control.fullscreen();
+		// add fullscreen control to the map
+		map.addControl(fsControl);
+
+		// detect fullscreen toggling
+		map.on('enterFullscreen', function () {
+			if (window.console) window.console.log('enterFullscreen');
+		});
+		map.on('exitFullscreen', function () {
+			if (window.console) window.console.log('exitFullscreen');
+		});
 
 		/*buat fitur geolocation dengan memanfaatkan plugin geolocation */
 		L.control.locate({ position: "topleft" }).addTo(map);
@@ -60,10 +112,10 @@
 		};
 		showExportButton.addTo(map);
 
-		// var Micon = L.Icon({
-		// 	iconUrl: "https://cdn-icons-png.flaticon.com/128/6152/6152893.png",
-		// 	iconSize: [25, 25]
-		// 	});
+		var Micon = L.icon({
+			iconUrl: "https://cdn-icons-png.flaticon.com/128/2800/2800327.png",
+			iconSize: [15, 15],
+		});
 
 		function loadlayer() {
 			var point = L.geoJson(null, {
@@ -72,7 +124,7 @@
 						"<p> Rating: " + feature.properties.rating + "  <i class='fas fa-star'></i></p>" +
 						"<p> Waktu Operasional: " + feature.properties.operasional + "</p>" +
 						"<p> Alamat Lengkap: " + feature.properties.Full_Address + "</p>";
-					layer.on({
+					layer.setIcon(Micon).on({
 						click: function (e) {
 							point.bindPopup(popupContent);
 						},
@@ -86,22 +138,16 @@
 			});
 			//buat style area admin desa dan munculin desanya
 			var areaStyle = {
-				"color": "#008B8B",
+				"color": "#C7DCA7",
 				"weight": 2,
 				"fillOpacity": 0.7,
 				"opacity": 0.45
 			};
-			
 
-			var areaAlu = new L.GeoJSON.AJAX(["data/Admin_Bali.geojson"], {
+
+			var areaAdmin = new L.GeoJSON.AJAX(["data/Admin_Bali.geojson"], {
 				onEachFeature: function (feature, layer) {
-					var popupText = "Kecamatan: " + feature.properties.NAMOBJ;
-					if (feature.properties.WADMKK) {
-						popupText += "<br/>Kabupaten: " + feature.properties.WADMKK;
-					}
-					if (feature.properties.jumlahALL) {
-						popupText += "<a href='halamanalufe.php'><br/>Jumlah Sekolah: 12</a>" //+ feature.properties.jumlahALL;
-					}
+					var popupText = "KABUPATEN: " + feature.properties.KABKOT;
 					layer.bindPopup(popupText);
 				}, style: areaStyle
 			}).addTo(map);
